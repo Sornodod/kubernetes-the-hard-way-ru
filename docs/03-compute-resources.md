@@ -1,18 +1,18 @@
-# Provisioning Compute Resources
+# Подготовка вычислительных ресурсов
 
-Kubernetes requires a set of machines to host the Kubernetes control plane and the worker nodes where containers are ultimately run. In this lab you will provision the machines required for setting up a Kubernetes cluster.
+Kubernetes требует набора машин для размещения control plane Kubernetes и worker-узлов, на которых в конечном итоге запускаются контейнеры. В этой лабораторной работе вы подготовите машины, необходимые для настройки кластера Kubernetes.
 
-## Machine Database
+## База данных машин
 
-This tutorial will leverage a text file, which will serve as a machine database, to store the various machine attributes that will be used when setting up the Kubernetes control plane and worker nodes. The following schema represents entries in the machine database, one entry per line:
+В этом учебнике будет использоваться текстовый файл, который послужит базой данных машин и будет хранить различные атрибуты машин, используемые при настройке control plane Kubernetes и worker-узлов. Следующая схема описывает записи в базе данных машин, по одной записи на строку:
 
 ```text
 IPV4_ADDRESS FQDN HOSTNAME POD_SUBNET
 ```
 
-Each of the columns corresponds to a machine IP address `IPV4_ADDRESS`, fully qualified domain name `FQDN`, host name `HOSTNAME`, and the IP subnet `POD_SUBNET`. Kubernetes assigns one IP address per `pod` and the `POD_SUBNET` represents the unique IP address range assigned to each machine in the cluster for doing so.
+Каждый из столбцов соответствует IP-адресу машины `IPV4_ADDRESS`, полному доменному имени `FQDN`, имени хоста `HOSTNAME` и IP-подсети `POD_SUBNET`. Kubernetes назначает по одному IP-адресу на каждый `pod`, а `POD_SUBNET` представляет уникальный диапазон IP-адресов, выделенный каждой машине в кластере для этой цели.
 
-Here is an example machine database similar to the one used when creating this tutorial. Notice the IP addresses have been masked out. Your machines can be assigned any IP address as long as each machine is reachable from each other and the `jumpbox`.
+Вот пример базы данных машин, похожий на тот, что использовался при создании этого учебника. Обратите внимание, что IP-адреса замаскированы. Вашим машинам можно назначить любые IP-адреса, если каждая машина доступна с любой другой машины и с `jumpbox`.
 
 ```bash
 cat machines.txt
@@ -24,41 +24,40 @@ XXX.XXX.XXX.XXX node-0.kubernetes.local node-0 10.200.0.0/24
 XXX.XXX.XXX.XXX node-1.kubernetes.local node-1 10.200.1.0/24
 ```
 
-Now it's your turn to create a `machines.txt` file with the details for the three machines you will be using to create your Kubernetes cluster. Use the example machine database from above and add the details for your machines.
+Теперь ваша очередь создать файл `machines.txt` с данными для трёх машин, которые вы будете использовать для создания кластера Kubernetes. Используйте пример базы данных машин выше и добавьте данные для своих машин.
 
-## Configuring SSH Access
+## Настройка SSH-доступа
 
-SSH will be used to configure the machines in the cluster. Verify that you have `root` SSH access to each machine listed in your machine database. You may need to enable root SSH access on each node by updating the sshd_config file and restarting the SSH server.
+SSH будет использоваться для настройки машин в кластере. Убедитесь, что у вас есть SSH-доступ от имени `root` к каждой машине, перечисленной в вашей базе данных машин. Возможно, вам потребуется включить root-доступ по SSH на каждом узле, обновив файл sshd_config и перезапустив SSH-сервер.
 
-### Enable root SSH Access
+### Включение root-доступа по SSH
 
-If `root` SSH access is enabled for each of your machines you can skip this section.
+Если root-доступ по SSH уже включён для каждой из ваших машин, этот раздел можно пропустить.
 
-By default, a new `debian` install disables SSH access for the `root` user. This is done for security reasons as the `root` user has total administrative control of unix-like systems. If a weak password is used on a machine connected to the internet, well, let's just say it's only a matter of time before your machine belongs to someone else. As mentioned earlier, we are going to enable `root` access over SSH in order to streamline the steps in this tutorial. Security is a tradeoff, and in this case, we are optimizing for convenience. Log on to each machine via SSH using your user account, then switch to the `root` user using the `su` command:
+По умолчанию новая установка `debian` отключает SSH-доступ для пользователя `root`. Это сделано в целях безопасности, поскольку пользователь `root` обладает полным административным контролем над unix-подобными системами. Если на машине, подключённой к интернету, используется слабый пароль, что ж, скажем так — это лишь вопрос времени, когда ваша машина перейдёт к кому-то другому. Как упоминалось ранее, мы включим доступ `root` по SSH, чтобы упростить шаги в этом учебнике. Безопасность — это компромисс, и в данном случае мы оптимизируем удобство. Войдите на каждую машину по SSH под своей учётной записью, затем переключитесь на пользователя `root` с помощью команды `su`:
 
 ```bash
 su - root
 ```
 
-Edit the `/etc/ssh/sshd_config` SSH daemon configuration file and set the `PermitRootLogin` option to `yes`:
-
+Отредактируйте файл конфигурации SSH-демона `/etc/ssh/sshd_config` и установите для параметра `PermitRootLogin` значение `yes`:
 ```bash
 sed -i \
   's/^#*PermitRootLogin.*/PermitRootLogin yes/' \
   /etc/ssh/sshd_config
 ```
 
-Restart the `sshd` SSH server to pick up the updated configuration file:
+Перезапустите SSH-сервер `sshd`, чтобы он подхватил обновлённый файл конфигурации:
 
 ```bash
 systemctl restart sshd
 ```
 
-### Generate and Distribute SSH Keys
+### Генерация и распространение SSH-ключей
 
-In this section you will generate and distribute an SSH keypair to the `server`, `node-0`, and `node-1`, machines, which will be used to run commands on those machines throughout this tutorial. Run the following commands from the `jumpbox` machine.
+В этом разделе вы сгенерируете пару SSH-ключей и распространите её на машины `server`, `node-0` и `node-1`, которые будут использоваться для запуска команд на этих машинах на протяжении всего учебника. Выполните следующие команды с машины `jumpbox`.
 
-Generate a new SSH key:
+Сгенерируйте новый SSH-ключ:
 
 ```bash
 ssh-keygen
@@ -73,7 +72,7 @@ Your identification has been saved in /root/.ssh/id_rsa
 Your public key has been saved in /root/.ssh/id_rsa.pub
 ```
 
-Copy the SSH public key to each machine:
+Скопируйте открытый SSH-ключ на каждую машину:
 
 ```bash
 while read IP FQDN HOST SUBNET; do
@@ -81,7 +80,7 @@ while read IP FQDN HOST SUBNET; do
 done < machines.txt
 ```
 
-Once each key is added, verify SSH public key access is working:
+После добавления каждого ключа проверьте, что доступ по открытому SSH-ключу работает:
 
 ```bash
 while read IP FQDN HOST SUBNET; do
@@ -95,13 +94,13 @@ node-0
 node-1
 ```
 
-## Hostnames
+## Имена хостов
 
-In this section you will assign hostnames to the `server`, `node-0`, and `node-1` machines. The hostname will be used when executing commands from the `jumpbox` to each machine. The hostname also plays a major role within the cluster. Instead of Kubernetes clients using an IP address to issue commands to the Kubernetes API server, those clients will use the `server` hostname instead. Hostnames are also used by each worker machine, `node-0` and `node-1` when registering with a given Kubernetes cluster.
+В этом разделе вы назначите имена хостов машинам `server`, `node-0` и `node-1`. Имя хоста будет использоваться при выполнении команд с `jumpbox` на каждую машину. Имя хоста также играет важную роль внутри кластера. Вместо того чтобы клиенты Kubernetes использовали IP-адрес для отправки команд API-серверу Kubernetes, эти клиенты будут использовать имя хоста `server`. Имена хостов также используются каждой worker-машиной, `node-0` и `node-1`, при регистрации в заданном кластере Kubernetes.
 
-To configure the hostname for each machine, run the following commands on the `jumpbox`.
+Чтобы настроить имя хоста для каждой машины, выполните следующие команды на `jumpbox`.
 
-Set the hostname on each machine listed in the `machines.txt` file:
+Установите имя хоста на каждой машине, перечисленной в файле `machines.txt`:
 
 ```bash
 while read IP FQDN HOST SUBNET; do
@@ -112,7 +111,7 @@ while read IP FQDN HOST SUBNET; do
 done < machines.txt
 ```
 
-Verify the hostname is set on each machine:
+Проверьте, что имя хоста установлено на каждой машине:
 
 ```bash
 while read IP FQDN HOST SUBNET; do
@@ -126,18 +125,18 @@ node-0.kubernetes.local
 node-1.kubernetes.local
 ```
 
-## Host Lookup Table
+## Таблица соответствия хостов
 
-In this section you will generate a `hosts` file which will be appended to `/etc/hosts` file on the `jumpbox` and to the `/etc/hosts` files on all three cluster members used for this tutorial. This will allow each machine to be reachable using a hostname such as `server`, `node-0`, or `node-1`.
+В этом разделе вы сгенерируете файл `hosts`, который будет добавлен к файлу `/etc/hosts` на `jumpbox` и к файлам `/etc/hosts` на всех трёх членах кластера, используемых в этом учебнике. Это позволит обращаться к каждой машине по имени хоста, например `server`, `node-0` или `node-1`.
 
-Create a new `hosts` file and add a header to identify the machines being added:
+Создайте новый файл `hosts` и добавьте заголовок для идентификации добавляемых машин:
 
 ```bash
 echo "" > hosts
 echo "# Kubernetes The Hard Way" >> hosts
 ```
 
-Generate a host entry for each machine in the `machines.txt` file and append it to the `hosts` file:
+Сгенерируйте запись хоста для каждой машины в файле `machines.txt` и добавьте её в файл `hosts`:
 
 ```bash
 while read IP FQDN HOST SUBNET; do
@@ -146,7 +145,7 @@ while read IP FQDN HOST SUBNET; do
 done < machines.txt
 ```
 
-Review the host entries in the `hosts` file:
+Просмотрите записи хостов в файле `hosts`:
 
 ```bash
 cat hosts
@@ -160,17 +159,17 @@ XXX.XXX.XXX.XXX node-0.kubernetes.local node-0
 XXX.XXX.XXX.XXX node-1.kubernetes.local node-1
 ```
 
-## Adding `/etc/hosts` Entries To A Local Machine
+## Добавление записей в /etc/hosts на локальной машине
 
-In this section you will append the DNS entries from the `hosts` file to the local `/etc/hosts` file on your `jumpbox` machine.
+В этом разделе вы добавите DNS-записи из файла `hosts` в локальный файл `/etc/hosts` на машине `jumpbox`.
 
-Append the DNS entries from `hosts` to `/etc/hosts`:
+Добавьте DNS-записи из `hosts` в `/etc/hosts`:
 
 ```bash
 cat hosts >> /etc/hosts
 ```
 
-Verify that the `/etc/hosts` file has been updated:
+Проверьте, что файл `/etc/hosts` был обновлён:
 
 ```bash
 cat /etc/hosts
@@ -191,7 +190,7 @@ XXX.XXX.XXX.XXX node-0.kubernetes.local node-0
 XXX.XXX.XXX.XXX node-1.kubernetes.local node-1
 ```
 
-At this point you should be able to SSH to each machine listed in the `machines.txt` file using a hostname.
+На этом этапе вы должны иметь возможность подключиться по SSH к каждой машине, перечисленной в файле `machines.txt`, используя имя хоста.
 
 ```bash
 for host in server node-0 node-1
@@ -205,11 +204,11 @@ node-0
 node-1
 ```
 
-## Adding `/etc/hosts` Entries To The Remote Machines
+## Добавление записей в `/etc/hosts` на удалённых машинах
 
-In this section you will append the host entries from `hosts` to `/etc/hosts` on each machine listed in the `machines.txt` text file.
+В этом разделе вы добавите записи хостов из файла hosts в /etc/hosts на каждой машине, перечисленной в текстовом файле machines.txt.
 
-Copy the `hosts` file to each machine and append the contents to `/etc/hosts`:
+Скопируйте файл `hosts` на каждую машину и добавьте его содержимое в `/etc/hosts`:
 
 ```bash
 while read IP FQDN HOST SUBNET; do
@@ -219,6 +218,6 @@ while read IP FQDN HOST SUBNET; do
 done < machines.txt
 ```
 
-At this point, hostnames can be used when connecting to machines from your `jumpbox` machine, or any of the three machines in the Kubernetes cluster. Instead of using IP addresses you can now connect to machines using a hostname such as `server`, `node-0`, or `node-1`.
+На этом этапе имена хостов можно использовать при подключении к машинам с вашей машины `jumpbox` или с любой из трёх машин в кластере Kubernetes. Вместо IP-адресов теперь можно подключаться к машинам, используя имя хоста, например `server`, `node-0` или `node-1`.
 
-Next: [Provisioning a CA and Generating TLS Certificates](04-certificate-authority.md)
+Next: [Подготовка CA и генерация TLS-сертификатов](04-certificate-authority.md)
