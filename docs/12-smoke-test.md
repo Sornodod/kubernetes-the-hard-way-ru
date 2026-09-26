@@ -1,19 +1,19 @@
-# Smoke Test
+# Финальная проверка
 
-In this lab you will complete a series of tasks to ensure your Kubernetes cluster is functioning correctly.
+В этой лабораторной работе вы выполните ряд задач, чтобы убедиться, что ваш кластер Kubernetes работает корректно.
 
-## Data Encryption
+## Шифрование данных
 
-In this section you will verify the ability to [encrypt secret data at rest](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#verifying-that-data-is-encrypted).
+В этом разделе вы проверите возможность [шифрования секретных данных при хранении](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#verifying-that-data-is-encrypted).
 
-Create a generic secret:
+Создайте generic Secret:
 
 ```bash
 kubectl create secret generic kubernetes-the-hard-way \
   --from-literal="mykey=mydata"
 ```
 
-Print a hexdump of the `kubernetes-the-hard-way` secret stored in etcd:
+Выведите шестнадцатеричный дамп секрета `kubernetes-the-hard-way`, хранящегося в etcd:
 
 ```bash
 ssh root@server \
@@ -35,7 +35,7 @@ ssh root@server \
 000000b0  e0 7d 46 8d b5 14 d0 c5  97 e2 94 76 26 a8 cb 33  |.}F........v&..3|
 000000c0  57 2a d0 27 a6 5a e1 76  a7 3f f0 b7 0a 7b ff 53  |W*.'.Z.v.?...{.S|
 000000d0  cf c9 1a 18 5b 45 f8 b1  06 3b a9 45 02 76 23 61  |....[E...;.E.v#a|
-000000e0  5e dc 86 cf 8e a4 d3 c9  5c 6a 6f e6 33 7b 5b 8f  |^.......\jo.3{[.|
+000000e0  5e dc 86 cf 8e a4 d3 c9  5c 6a 6f e6 33 7b 5b 8f  |^.......\jo.3{.|
 000000f0  fb 8a 14 74 58 f9 49 2f  97 98 cc 5c d4 4a 10 1a  |...tX.I/...\.J..|
 00000100  64 0a 79 21 68 a0 9e 7a  03 b7 19 e6 20 e4 1b ce  |d.y!h..z.... ...|
 00000110  91 64 ce 90 d9 4f 86 ca  fb 45 2f d6 56 93 68 e1  |.d...O...E/.V.h.|
@@ -46,42 +46,42 @@ ssh root@server \
 0000015a
 ```
 
-The etcd key should be prefixed with `k8s:enc:aescbc:v1:key1`, which indicates the `aescbc` provider was used to encrypt the data with the `key1` encryption key.
+Ключ etcd должен иметь префикс `k8s:enc:aescbc:v1:key1`. Это указывает, что для шифрования данных с помощью ключа шифрования `key1` использовался провайдер `aescbc`.
 
-## Deployments
+## Deployment'ы
 
-In this section you will verify the ability to create and manage [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/).
+В этом разделе вы проверите возможность создавать и управлять [Deployment'ами](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/).
 
-Create a deployment for the [nginx](https://nginx.org/en/) web server:
+Создайте Deployment для веб-сервера [nginx](https://nginx.org/):
 
 ```bash
 kubectl create deployment nginx \
   --image=nginx:latest
 ```
 
-List the pod created by the `nginx` deployment:
+Выведите список pod'ов, созданных Deployment'ом `nginx`:
 
 ```bash
 kubectl get pods -l app=nginx
 ```
 
-```bash
+```text
 NAME                     READY   STATUS    RESTARTS   AGE
 nginx-56fcf95486-c8dnx   1/1     Running   0          8s
 ```
 
-### Port Forwarding
+### Проброс портов
 
-In this section you will verify the ability to access applications remotely using [port forwarding](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/).
+В этом разделе вы проверите возможность удалённого доступа к приложениям с помощью [проброса портов](https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/).
 
-Retrieve the full name of the `nginx` pod:
+Получите полное имя pod'а `nginx`:
 
 ```bash
 POD_NAME=$(kubectl get pods -l app=nginx \
-  -o jsonpath="{.items[0].metadata.name}")
+  -o jsonpath="{.items.metadata.name}")
 ```
 
-Forward port `8080` on your local machine to port `80` of the `nginx` pod:
+Перенаправьте порт `8080` локальной машины на порт `80` pod'а `nginx`:
 
 ```bash
 kubectl port-forward $POD_NAME 8080:80
@@ -92,7 +92,7 @@ Forwarding from 127.0.0.1:8080 -> 80
 Forwarding from [::1]:8080 -> 80
 ```
 
-In a new terminal make an HTTP request using the forwarding address:
+В новом терминале выполните HTTP-запрос через адрес перенаправления:
 
 ```bash
 curl --head http://127.0.0.1:8080
@@ -110,7 +110,7 @@ ETag: "67a34638-267"
 Accept-Ranges: bytes
 ```
 
-Switch back to the previous terminal and stop the port forwarding to the `nginx` pod:
+Вернитесь в предыдущий терминал и остановите проброс портов к pod'у `nginx`:
 
 ```text
 Forwarding from 127.0.0.1:8080 -> 80
@@ -119,11 +119,11 @@ Handling connection for 8080
 ^C
 ```
 
-### Logs
+### Логи
 
-In this section you will verify the ability to [retrieve container logs](https://kubernetes.io/docs/concepts/cluster-administration/logging/).
+В этом разделе вы проверите возможность [получения логов контейнера](https://kubernetes.io/docs/concepts/cluster-administration/logging/).
 
-Print the `nginx` pod logs:
+Выведите логи pod'а `nginx`:
 
 ```bash
 kubectl logs $POD_NAME
@@ -134,11 +134,11 @@ kubectl logs $POD_NAME
 127.0.0.1 - - [06/Apr/2025:17:17:12 +0000] "HEAD / HTTP/1.1" 200 0 "-" "curl/7.88.1" "-"
 ```
 
-### Exec
+### Выполнение команд
 
-In this section you will verify the ability to [execute commands in a container](https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/#running-individual-commands-in-a-container).
+В этом разделе вы проверите возможность [выполнения команд в контейнере](https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/#running-individual-commands-in-a-container).
 
-Print the nginx version by executing the `nginx -v` command in the `nginx` container:
+Выведите версию nginx, выполнив команду `nginx -v` в контейнере `nginx`:
 
 ```bash
 kubectl exec -ti $POD_NAME -- nginx -v
@@ -148,35 +148,35 @@ kubectl exec -ti $POD_NAME -- nginx -v
 nginx version: nginx/1.27.4
 ```
 
-## Services
+## Сервисы
 
-In this section you will verify the ability to expose applications using a [Service](https://kubernetes.io/docs/concepts/services-networking/service/).
+В этом разделе вы проверите возможность публикации приложений с помощью [Service](https://kubernetes.io/docs/concepts/services-networking/service/).
 
-Expose the `nginx` deployment using a [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport) service:
+Опубликуйте Deployment `nginx` через сервис типа [NodePort](https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport):
 
 ```bash
 kubectl expose deployment nginx \
   --port 80 --type NodePort
 ```
 
-> The LoadBalancer service type can not be used because your cluster is not configured with [cloud provider integration](https://kubernetes.io/docs/getting-started-guides/scratch/#cloud-provider). Setting up cloud provider integration is out of scope for this tutorial.
+> Тип сервиса LoadBalancer использовать нельзя, потому что ваш кластер не настроен для [интеграции с облачным провайдером](https://kubernetes.io/docs/getting-started-guides/scratch/#cloud-provider). Настройка интеграции с облачным провайдером не входит в рамки этого руководства.
 
-Retrieve the node port assigned to the `nginx` service:
+Получите node port, назначенный сервису `nginx`:
 
 ```bash
 NODE_PORT=$(kubectl get svc nginx \
-  --output=jsonpath='{range .spec.ports[0]}{.nodePort}')
+  --output=jsonpath='{range .spec.ports}{.nodePort}')
 ```
 
-Retrieve the hostname of the node running the `nginx` pod:
+Получите имя узла, на котором запущен pod `nginx`:
 
 ```bash
 NODE_NAME=$(kubectl get pods \
   -l app=nginx \
-  -o jsonpath="{.items[0].spec.nodeName}")
+  -o jsonpath="{.items.spec.nodeName}")
 ```
 
-Make an HTTP request using the IP address and the `nginx` node port:
+Выполните HTTP-запрос, используя IP-адрес узла и node port `nginx`:
 
 ```bash
 curl -I http://${NODE_NAME}:${NODE_PORT}
@@ -193,4 +193,4 @@ ETag: "67a34638-267"
 Accept-Ranges: bytes
 ```
 
-Next: [Cleaning Up](13-cleanup.md)
+Далее: [Очистка ресурсов](13-cleanup.md)
