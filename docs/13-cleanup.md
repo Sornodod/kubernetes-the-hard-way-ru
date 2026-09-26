@@ -1,11 +1,11 @@
-# Cleaning Up
+# Очистка ресурсов
 
-In this lab you will delete the compute resources created during this tutorial.
+В этой лабораторной работе вы удалите вычислительные ресурсы, созданные во время выполнения этого руководства.
 
-## Compute Instances
+## Виртуальные машины
 
-Previous versions of this guide made use of GCP resources for various aspects of compute and networking. The current version is agnostic, and all configuration is performed on the `jumpbox`, `server`, or nodes.
+В предыдущих версиях этого руководства для различных задач, связанных с вычислениями и сетью, использовались ресурсы GCP. Текущая версия не зависит от конкретного облачного провайдера: вся настройка выполняется на `jumpbox`, `server` или рабочих узлах.
 
-Clean up is as simple as deleting all virtual machines you created for this exercise.
+Очистка сводится к удалению всех виртуальных машин, созданных для этого упражнения.
 
-Next: [Start Over](../README.md)
+Далее: [Начать заново](../README.md)
