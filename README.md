@@ -1,43 +1,43 @@
 # Kubernetes The Hard Way
 
-This tutorial walks you through setting up Kubernetes the hard way. This guide is not for someone looking for a fully automated tool to bring up a Kubernetes cluster. Kubernetes The Hard Way is optimized for learning, which means taking the long route to ensure you understand each task required to bootstrap a Kubernetes cluster.
+Этот учебник проведёт вас через настройку Kubernetes «сложным путём». Это руководство не для тех, кто ищет полностью автоматизированный инструмент для развёртывания кластера Kubernetes. Kubernetes The Hard Way оптимизирован для обучения, а это значит, что мы идём длинным маршрутом, чтобы вы точно разобрались в каждой задаче, необходимой для начальной загрузки кластера Kubernetes.
 
-> The results of this tutorial should not be viewed as production ready, and may receive limited support from the community, but don't let that stop you from learning!
+> Результаты этого учебника не следует рассматривать как готовые к продакшену, и сообщество может оказывать им ограниченную поддержку, но пусть это не помешает вам учиться!
 
-## Copyright
+## Авторские права
 
-<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />Эта работа распространяется на условиях лицензии <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 
 
-## Target Audience
+## Целевая аудитория
 
-The target audience for this tutorial is someone who wants to understand the fundamentals of Kubernetes and how the core components fit together.
+Целевая аудитория этого учебника — те, кто хочет понять основы Kubernetes и то, как взаимодействуют его ключевые компоненты.
 
-## Cluster Details
+## Детали кластера
 
-Kubernetes The Hard Way guides you through bootstrapping a basic Kubernetes cluster with all control plane components running on a single node, and two worker nodes, which is enough to learn the core concepts.
+Kubernetes The Hard Way проведёт вас через начальную загрузку базового кластера Kubernetes, в котором все компоненты control plane работают на одном узле, плюс два worker-узла — этого достаточно, чтобы изучить ключевые концепции.
 
-Component versions:
+Версии компонентов:
 
 * [kubernetes](https://github.com/kubernetes/kubernetes) v1.32.x
 * [containerd](https://github.com/containerd/containerd) v2.1.x
 * [cni](https://github.com/containernetworking/cni) v1.6.x
 * [etcd](https://github.com/etcd-io/etcd) v3.6.x
 
-## Labs
+## Лабораторные работы
 
-This tutorial requires four (4) ARM64 or AMD64 based virtual or physical machines connected to the same network.
+Для прохождения этого учебника требуется четыре (4) виртуальные или физические машины на архитектуре ARM64 или AMD64, подключённые к одной сети.
 
-* [Prerequisites](docs/01-prerequisites.md)
-* [Setting up the Jumpbox](docs/02-jumpbox.md)
-* [Provisioning Compute Resources](docs/03-compute-resources.md)
-* [Provisioning the CA and Generating TLS Certificates](docs/04-certificate-authority.md)
-* [Generating Kubernetes Configuration Files for Authentication](docs/05-kubernetes-configuration-files.md)
-* [Generating the Data Encryption Config and Key](docs/06-data-encryption-keys.md)
-* [Bootstrapping the etcd Cluster](docs/07-bootstrapping-etcd.md)
-* [Bootstrapping the Kubernetes Control Plane](docs/08-bootstrapping-kubernetes-controllers.md)
-* [Bootstrapping the Kubernetes Worker Nodes](docs/09-bootstrapping-kubernetes-workers.md)
-* [Configuring kubectl for Remote Access](docs/10-configuring-kubectl.md)
-* [Provisioning Pod Network Routes](docs/11-pod-network-routes.md)
-* [Smoke Test](docs/12-smoke-test.md)
-* [Cleaning Up](docs/13-cleanup.md)
+* [Предварительные требования](docs/01-prerequisites.md)
+* [Настройка Jumpbox](docs/02-jumpbox.md)
+* [Подготовка вычислительных ресурсов](docs/03-compute-resources.md)
+* [Подготовка CA и генерация TLS-сертификатов](docs/04-certificate-authority.md)
+* [Генерация конфигурационных файлов Kubernetes для аутентификации](docs/05-kubernetes-configuration-files.md)
+* [Генерация конфигурации и ключа шифрования данных](docs/06-data-encryption-keys.md)
+* [Начальная загрузка кластера etcd](docs/07-bootstrapping-etcd.md)
+* [Начальная загрузка control plane Kubernetes](docs/08-bootstrapping-kubernetes-controllers.md)
+* [Начальная загрузка worker-узлов Kubernetes](docs/09-bootstrapping-kubernetes-workers.md)
+* [Настройка kubectl для удалённого доступа](docs/10-configuring-kubectl.md)
+* [Подготовка маршрутов Pod-сети](docs/11-pod-network-routes.md)
+* [Дымовой тест](docs/12-smoke-test.md)
+* [Очистка](docs/13-cleanup.md)
