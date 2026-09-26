@@ -1,18 +1,18 @@
-# Configuring kubectl for Remote Access
+# Настройка kubectl для удалённого доступа
 
-In this lab you will generate a kubeconfig file for the `kubectl` command line utility based on the `admin` user credentials.
+В этой лабораторной работе вы создадите kubeconfig-файл для утилиты командной строки `kubectl` на основе учётных данных пользователя `admin`.
 
-> Run the commands in this lab from the `jumpbox` machine.
+> Выполняйте команды из этой лабораторной работы на машине `jumpbox`.
 
-## The Admin Kubernetes Configuration File
+## Конфигурационный файл Kubernetes для admin
 
-Each kubeconfig requires a Kubernetes API Server to connect to.
+Для каждого kubeconfig требуется Kubernetes API Server, к которому будет выполняться подключение.
 
-You should be able to ping `server.kubernetes.local` based on the `/etc/hosts` DNS entry from a previous lab.
+Вы должны иметь возможность отправить запрос к `server.kubernetes.local` благодаря DNS-записи в `/etc/hosts`, созданной в одной из предыдущих лабораторных работ.
 
 ```bash
 curl --cacert ca.crt \
-  https://server.kubernetes.local:6443/version
+  [https://server.kubernetes.local:6443/version](https://server.kubernetes.local:6443/version)
 ```
 
 ```text
@@ -29,14 +29,14 @@ curl --cacert ca.crt \
 }
 ```
 
-Generate a kubeconfig file suitable for authenticating as the `admin` user:
+Создайте kubeconfig-файл, подходящий для аутентификации от имени пользователя `admin`:
 
 ```bash
 {
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.crt \
     --embed-certs=true \
-    --server=https://server.kubernetes.local:6443
+    --server=[https://server.kubernetes.local:6443](https://server.kubernetes.local:6443)
 
   kubectl config set-credentials admin \
     --client-certificate=admin.crt \
@@ -49,12 +49,12 @@ Generate a kubeconfig file suitable for authenticating as the `admin` user:
   kubectl config use-context kubernetes-the-hard-way
 }
 ```
-The results of running the command above should create a kubeconfig file in the default location `~/.kube/config` used by the  `kubectl` commandline tool. This also means you can run the `kubectl` command without specifying a config.
 
+В результате выполнения команды выше kubeconfig-файл будет создан в расположении по умолчанию — `~/.kube/config`, которое использует утилита командной строки `kubectl`. Это также означает, что вы сможете запускать команду `kubectl`, не указывая конфигурационный файл явно.
 
-## Verification
+## Проверка
 
-Check the version of the remote Kubernetes cluster:
+Проверьте версию удалённого кластера Kubernetes:
 
 ```bash
 kubectl version
@@ -66,16 +66,16 @@ Kustomize Version: v5.5.0
 Server Version: v1.32.3
 ```
 
-List the nodes in the remote Kubernetes cluster:
+Выведите список узлов в удалённом кластере Kubernetes:
 
 ```bash
 kubectl get nodes
 ```
 
-```
+```text
 NAME     STATUS   ROLES    AGE    VERSION
 node-0   Ready    <none>   10m   v1.32.3
 node-1   Ready    <none>   10m   v1.32.3
 ```
 
-Next: [Provisioning Pod Network Routes](11-pod-network-routes.md)
+Далее: [Настройка маршрутов сети pod'ов](11-pod-network-routes.md)
