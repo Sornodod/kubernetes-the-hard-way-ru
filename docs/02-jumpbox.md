@@ -1,20 +1,20 @@
-# Set Up The Jumpbox
+# Настройка Jumpbox
 
-In this lab you will set up one of the four machines to be a `jumpbox`. This machine will be used to run commands throughout this tutorial. While a dedicated machine is being used to ensure consistency, these commands can also be run from just about any machine including your personal workstation running macOS or Linux.
+В этой лабораторной работе вы настроите одну из четырёх машин в качестве `jumpbox`. Эта машина будет использоваться для запуска команд на протяжении всего учебника. Хотя для обеспечения единообразия используется выделенная машина, эти команды можно выполнять практически с любой машины, включая вашу личную рабочую станцию под управлением macOS или Linux.
 
-Think of the `jumpbox` as the administration machine that you will use as a home base when setting up your Kubernetes cluster from the ground up. Before we get started we need to install a few command line utilities and clone the Kubernetes The Hard Way git repository, which contains some additional configuration files that will be used to configure various Kubernetes components throughout this tutorial.
+Воспринимайте `jumpbox` как машину администратора, которая будет вашей базой при построении кластера Kubernetes с нуля. Прежде чем мы начнём, нужно установить несколько утилит командной строки и клонировать git-репозиторий Kubernetes The Hard Way, который содержит дополнительные конфигурационные файлы, используемые для настройки различных компонентов Kubernetes на протяжении всего учебника.
 
-Log in to the `jumpbox`:
+Войдите на `jumpbox`:
 
 ```bash
 ssh root@jumpbox
 ```
 
-All commands will be run as the `root` user. This is being done for the sake of convenience, and will help reduce the number of commands required to set everything up.
+Все команды будут выполняться от имени пользователя root. Это сделано для удобства и поможет сократить количество команд, необходимых для настройки всего окружения.
 
-### Install Command Line Utilities
+### Установка утилит командной строки
 
-Now that you are logged into the `jumpbox` machine as the `root` user, you will install the command line utilities that will be used to preform various tasks throughout the tutorial.
+Теперь, когда вы вошли на машину jumpbox как пользователь root, вы установите утилиты командной строки, которые будут использоваться для выполнения различных задач на протяжении учебника.
 
 ```bash
 {
@@ -23,22 +23,21 @@ Now that you are logged into the `jumpbox` machine as the `root` user, you will 
 }
 ```
 
-### Sync GitHub Repository
+### Синхронизация GitHub-репозитория
 
-Now it's time to download a copy of this tutorial which contains the configuration files and templates that will be used build your Kubernetes cluster from the ground up. Clone the Kubernetes The Hard Way git repository using the `git` command:
+Теперь пора скачать копию этого учебника, содержащую конфигурационные файлы и шаблоны, которые будут использоваться для построения вашего кластера Kubernetes с нуля. Клонируйте git-репозиторий Kubernetes The Hard Way с помощью команды git:
 
 ```bash
 git clone --depth 1 \
   https://github.com/kelseyhightower/kubernetes-the-hard-way.git
 ```
 
-Change into the `kubernetes-the-hard-way` directory:
-
+Перейдите в каталог kubernetes-the-hard-way:
 ```bash
 cd kubernetes-the-hard-way
 ```
 
-This will be the working directory for the rest of the tutorial. If you ever get lost run the `pwd` command to verify you are in the right directory when running commands on the `jumpbox`:
+Это будет рабочим каталогом для всего оставшегося учебника. Если вы когда-нибудь заблудитесь, выполните команду `pwd`, чтобы убедиться, что находитесь в правильном каталоге при выполнении команд на `jumpbox`:
 
 ```bash
 pwd
@@ -48,17 +47,17 @@ pwd
 /root/kubernetes-the-hard-way
 ```
 
-### Download Binaries
+### Загрузка бинарных файлов
 
-In this section you will download the binaries for the various Kubernetes components. The binaries will be stored in the `downloads` directory on the `jumpbox`, which will reduce the amount of internet bandwidth required to complete this tutorial as we avoid downloading the binaries multiple times for each machine in our Kubernetes cluster.
+В этом разделе вы скачаете бинарные файлы для различных компонентов Kubernetes. Бинарные файлы будут храниться в каталоге `downloads` на `jumpbox`, что позволит сократить объём интернет-трафика, необходимого для прохождения учебника, поскольку мы избегаем многократной загрузки бинарных файлов для каждой машины в нашем кластере Kubernetes.
 
-The binaries that will be downloaded are listed in either the `downloads-amd64.txt` or `downloads-arm64.txt` file depending on your hardware architecture, which you can review using the `cat` command:
+Бинарные файлы, которые будут загружены, перечислены в файле `downloads-amd64.txt` или `downloads-arm64.txt` в зависимости от архитектуры вашего оборудования; просмотреть его можно с помощью команды cat:
 
 ```bash
 cat downloads-$(dpkg --print-architecture).txt
 ```
 
-Download the binaries into a directory called `downloads` using the `wget` command:
+Скачайте бинарные файлы в каталог с именем `downloads` с помощью команды wget:
 
 ```bash
 wget -q --show-progress \
@@ -68,13 +67,13 @@ wget -q --show-progress \
   -i downloads-$(dpkg --print-architecture).txt
 ```
 
-Depending on your internet connection speed it may take a while to download over `500` megabytes of binaries, and once the download is complete, you can list them using the `ls` command:
+В зависимости от скорости вашего интернет-соединения загрузка более `500` мегабайт бинарных файлов может занять некоторое время; когда загрузка завершится, вы можете вывести их список с помощью команды `ls`:
 
 ```bash
 ls -oh downloads
 ```
 
-Extract the component binaries from the release archives and organize them under the `downloads` directory.
+Извлеките бинарные файлы компонентов из архивов релизов и разложите их по каталогу `downloads`.
 
 ```bash
 {
@@ -104,7 +103,7 @@ Extract the component binaries from the release archives and organize them under
 rm -rf downloads/*gz
 ```
 
-Make the binaries executable.
+Сделайте бинарные файлы исполняемыми.
 
 ```bash
 {
@@ -112,11 +111,11 @@ Make the binaries executable.
 }
 ```
 
-### Install kubectl
+### Установка kubectl
 
-In this section you will install the `kubectl`, the official Kubernetes client command line tool, on the `jumpbox` machine. `kubectl` will be used to interact with the Kubernetes control plane once your cluster is provisioned later in this tutorial.
+В этом разделе вы установите `kubectl` — официальный клиент командной строки Kubernetes — на машину `jumpbox`. `kubectl` будет использоваться для взаимодействия с control plane Kubernetes после того, как ваш кластер будет развёрнут далее в этом учебнике.
 
-Use the `chmod` command to make the `kubectl` binary executable and move it to the `/usr/local/bin/` directory:
+Используйте команду `chmod`, чтобы сделать бинарный файл `kubectl` исполняемым, и переместите его в каталог `/usr/local/bin/`:
 
 ```bash
 {
@@ -124,7 +123,7 @@ Use the `chmod` command to make the `kubectl` binary executable and move it to t
 }
 ```
 
-At this point `kubectl` is installed and can be verified by running the `kubectl` command:
+На этом этапе `kubectl` установлен, и это можно проверить, выполнив команду kubectl:
 
 ```bash
 kubectl version --client
@@ -135,6 +134,6 @@ Client Version: v1.32.3
 Kustomize Version: v5.5.0
 ```
 
-At this point the `jumpbox` has been set up with all the command line tools and utilities necessary to complete the labs in this tutorial.
+На этом этапе `jumpbox` настроен со всеми инструментами и утилитами командной строки, необходимыми для прохождения лабораторных работ этого учебника.
 
-Next: [Provisioning Compute Resources](03-compute-resources.md)
+Next: [Подготовка вычислительных ресурсов](03-compute-resources.md)
