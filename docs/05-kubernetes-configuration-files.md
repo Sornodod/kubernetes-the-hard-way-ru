@@ -149,4 +149,61 @@ kube-scheduler.kubeconfig
 
 ### Конфигурационный файл Kubernetes для admin
 
-Создайте kubeconfig-файл для
+Создайте kubeconfig-файл для пользователя `admin`:
+
+```bash
+{
+  kubectl config set-cluster kubernetes-the-hard-way \
+    --certificate-authority=ca.crt \
+    --embed-certs=true \
+    --server=[https://127.0.0.1:6443](https://127.0.0.1:6443) \
+    --kubeconfig=admin.kubeconfig
+
+  kubectl config set-credentials admin \
+    --client-certificate=admin.crt \
+    --client-key=admin.key \
+    --embed-certs=true \
+    --kubeconfig=admin.kubeconfig
+
+  kubectl config set-context default \
+    --cluster=kubernetes-the-hard-way \
+    --user=admin \
+    --kubeconfig=admin.kubeconfig
+
+  kubectl config use-context default \
+    --kubeconfig=admin.kubeconfig
+}
+```
+
+Результат:
+
+```text
+admin.kubeconfig
+```
+
+## Распространение конфигурационных файлов Kubernetes
+
+Скопируйте kubeconfig-файлы `kubelet` и `kube-proxy` на машины `node-0` и `node-1`:
+
+```bash
+for host in node-0 node-1; do
+  ssh root@${host} "mkdir -p /var/lib/{kube-proxy,kubelet}"
+
+  scp kube-proxy.kubeconfig \
+    root@${host}:/var/lib/kube-proxy/kubeconfig \
+
+  scp ${host}.kubeconfig \
+    root@${host}:/var/lib/kubelet/kubeconfig
+done
+```
+
+Скопируйте kubeconfig-файлы `kube-controller-manager` и `kube-scheduler` на машину `server`:
+
+```bash
+scp admin.kubeconfig \
+  kube-controller-manager.kubeconfig \
+  kube-scheduler.kubeconfig \
+  root@server:~/
+```
+
+Далее: [Создание конфигурации и ключа шифрования данных](06-data-encryption-keys.md)
