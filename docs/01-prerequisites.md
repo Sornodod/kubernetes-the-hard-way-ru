@@ -1,25 +1,25 @@
-# Prerequisites
+# Предварительные требования
 
-In this lab you will review the machine requirements necessary to follow this tutorial.
+В этой лабораторной работе вы ознакомитесь с требованиями к машинам, необходимыми для прохождения этого учебника.
 
-## Virtual or Physical Machines
+## Виртуальные или физические машины
 
-This tutorial requires four (4) virtual or physical ARM64 or AMD64 machines running Debian 12 (bookworm). The following table lists the four machines and their CPU, memory, and storage requirements.
+Для прохождения этого учебника требуется четыре (4) виртуальные или физические машины на архитектуре ARM64 или AMD64 под управлением Debian 12 (bookworm). В следующей таблице перечислены эти четыре машины и требования к их CPU, памяти и дисковому пространству.
 
-| Name    | Description            | CPU | RAM   | Storage |
-|---------|------------------------|-----|-------|---------|
-| jumpbox | Administration host    | 1   | 512MB | 10GB    |
-| server  | Kubernetes server      | 1   | 2GB   | 20GB    |
-| node-0  | Kubernetes worker node | 1   | 2GB   | 20GB    |
-| node-1  | Kubernetes worker node | 1   | 2GB   | 20GB    |
+| Имя     | Описание                  | CPU | RAM   | Диск  |
+|---------|---------------------------|-----|-------|-------|
+| jumpbox | Хост администрирования    | 1   | 512MB | 10GB  |
+| server  | Сервер Kubernetes         | 1   | 2GB   | 20GB  |
+| node-0  | Worker-узел Kubernetes    | 1   | 2GB   | 20GB  |
+| node-1  | Worker-узел Kubernetes    | 1   | 2GB   | 20GB  |
 
-How you provision the machines is up to you, the only requirement is that each machine meet the above system requirements including the machine specs and OS version. Once you have all four machines provisioned, verify the OS requirements by viewing the `/etc/os-release` file:
+Как вы создаёте эти машины — решать вам; единственное требование — каждая машина должна соответствовать указанным выше системным требованиям, включая характеристики машины и версию ОС. Когда все четыре машины будут готовы, проверьте соответствие требованиям к ОС, просмотрев файл `/etc/os-release`:
 
 ```bash
 cat /etc/os-release
 ```
 
-You should see something similar to the following output:
+Вы должны увидеть вывод, похожий на следующий:
 
 ```text
 PRETTY_NAME="Debian GNU/Linux 12 (bookworm)"
@@ -30,4 +30,4 @@ VERSION_CODENAME=bookworm
 ID=debian
 ```
 
-Next: [setting-up-the-jumpbox](02-jumpbox.md)
+Далее: [настройка-jumpbox](02-jumpbox.md)
