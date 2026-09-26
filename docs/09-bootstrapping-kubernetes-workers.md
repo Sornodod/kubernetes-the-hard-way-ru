@@ -1,12 +1,12 @@
-# Bootstrapping the Kubernetes Worker Nodes
+# Развёртывание рабочих узлов Kubernetes
 
-In this lab you will bootstrap two Kubernetes worker nodes. The following components will be installed: [runc](https://github.com/opencontainers/runc), [container networking plugins](https://github.com/containernetworking/cni), [containerd](https://github.com/containerd/containerd), [kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet), and [kube-proxy](https://kubernetes.io/docs/concepts/cluster-administration/proxies).
+В этой лабораторной работе вы развернёте два рабочих узла Kubernetes. Будут установлены следующие компоненты: [runc](https://github.com/opencontainers/runc), [плагины контейнерной сети](https://github.com/containernetworking/cni), [containerd](https://github.com/containerd/containerd), [kubelet](https://kubernetes.io/docs/reference/command-line-tools-reference/kubelet) и [kube-proxy](https://kubernetes.io/docs/concepts/cluster-administration/proxies).
 
-## Prerequisites
+## Предварительные требования
 
-The commands in this section must be run from the `jumpbox`.
+Команды этого раздела необходимо выполнять с `jumpbox`.
 
-Copy the Kubernetes binaries and systemd unit files to each worker instance:
+Скопируйте бинарные файлы Kubernetes и systemd unit-файлы на каждый рабочий узел:
 
 ```bash
 for HOST in node-0 node-1; do
@@ -45,15 +45,15 @@ for HOST in node-0 node-1; do
 done
 ```
 
-The commands in the next section must be run on each worker instance: `node-0`, `node-1`. Login to the worker instance using the `ssh` command. Example:
+Команды следующего раздела необходимо выполнить на каждом рабочем узле: `node-0` и `node-1`. Подключитесь к рабочему узлу по SSH. Пример:
 
 ```bash
 ssh root@node-0
 ```
 
-## Provisioning a Kubernetes Worker Node
+## Настройка рабочего узла Kubernetes
 
-Install the OS dependencies:
+Установите зависимости операционной системы:
 
 ```bash
 {
@@ -62,27 +62,27 @@ Install the OS dependencies:
 }
 ```
 
-> The socat binary enables support for the `kubectl port-forward` command.
+> Бинарный файл `socat` обеспечивает поддержку команды `kubectl port-forward`.
 
-Disable Swap
+### Отключение swap
 
-Kubernetes has limited support for the use of swap memory, as it is difficult to provide guarantees and account for pod memory utilization when swap is involved.
+Kubernetes ограниченно поддерживает использование swap-памяти, поскольку при задействованном swap сложно гарантировать и учитывать потребление памяти pod'ами.
 
-Verify if swap is disabled:
+Проверьте, отключён ли swap:
 
 ```bash
 swapon --show
 ```
 
-If output is empty then swap is disabled. If swap is enabled run the following command to disable swap immediately:
+Если вывод пустой, swap отключён. Если swap включён, выполните следующую команду, чтобы отключить его немедленно:
 
 ```bash
 swapoff -a
 ```
 
-> To ensure swap remains off after reboot consult your Linux distro documentation.
+> Чтобы swap оставался отключённым после перезагрузки, обратитесь к документации вашего дистрибутива Linux.
 
-Create the installation directories:
+Создайте каталоги для установки:
 
 ```bash
 mkdir -p \
@@ -94,7 +94,7 @@ mkdir -p \
   /var/run/kubernetes
 ```
 
-Install the worker binaries:
+Установите бинарные файлы рабочего узла:
 
 ```bash
 {
@@ -105,15 +105,15 @@ Install the worker binaries:
 }
 ```
 
-### Configure CNI Networking
+### Настройка сети CNI
 
-Create the `bridge` network configuration file:
+Создайте файл конфигурации сети `bridge`:
 
 ```bash
 mv 10-bridge.conf 99-loopback.conf /etc/cni/net.d/
 ```
 
-To ensure network traffic crossing the CNI `bridge` network is processed by `iptables`, load and configure the `br-netfilter` kernel module:
+Чтобы сетевой трафик, проходящий через CNI-сеть `bridge`, обрабатывался `iptables`, загрузите и настройте модуль ядра `br-netfilter`:
 
 ```bash
 {
@@ -132,9 +132,9 @@ To ensure network traffic crossing the CNI `bridge` network is processed by `ipt
 }
 ```
 
-### Configure containerd
+### Настройка containerd
 
-Install the `containerd` configuration files:
+Установите конфигурационные файлы `containerd`:
 
 ```bash
 {
@@ -144,9 +144,9 @@ Install the `containerd` configuration files:
 }
 ```
 
-### Configure the Kubelet
+### Настройка Kubelet
 
-Create the `kubelet-config.yaml` configuration file:
+Создайте конфигурационный файл `kubelet-config.yaml`:
 
 ```bash
 {
@@ -155,7 +155,7 @@ Create the `kubelet-config.yaml` configuration file:
 }
 ```
 
-### Configure the Kubernetes Proxy
+### Настройка Kubernetes Proxy
 
 ```bash
 {
@@ -164,7 +164,7 @@ Create the `kubelet-config.yaml` configuration file:
 }
 ```
 
-### Start the Worker Services
+### Запуск сервисов рабочего узла
 
 ```bash
 {
@@ -174,7 +174,7 @@ Create the `kubelet-config.yaml` configuration file:
 }
 ```
 
-Check if the kubelet service is running:
+Проверьте, что сервис kubelet работает:
 
 ```bash
 systemctl is-active kubelet
@@ -184,13 +184,13 @@ systemctl is-active kubelet
 active
 ```
 
-Be sure to complete the steps in this section on each worker node, `node-0` and `node-1`, before moving on to the next section.
+Перед переходом к следующему разделу обязательно выполните шаги этого раздела на каждом рабочем узле: `node-0` и `node-1`.
 
-## Verification
+## Проверка
 
-Run the following commands from the `jumpbox` machine.
+Выполните следующие команды на машине `jumpbox`.
 
-List the registered Kubernetes nodes:
+Выведите список зарегистрированных узлов Kubernetes:
 
 ```bash
 ssh root@server \
@@ -198,10 +198,10 @@ ssh root@server \
   --kubeconfig admin.kubeconfig"
 ```
 
-```
+```text
 NAME     STATUS   ROLES    AGE    VERSION
 node-0   Ready    <none>   1m     v1.32.3
 node-1   Ready    <none>   10s    v1.32.3
 ```
 
-Next: [Configuring kubectl for Remote Access](10-configuring-kubectl.md)
+Далее: [Настройка kubectl для удалённого доступа](10-configuring-kubectl.md)
