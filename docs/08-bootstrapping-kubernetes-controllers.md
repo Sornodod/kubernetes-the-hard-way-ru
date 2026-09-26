@@ -1,10 +1,10 @@
-# Bootstrapping the Kubernetes Control Plane
+# Развёртывание control plane Kubernetes
 
-In this lab you will bootstrap the Kubernetes control plane. The following components will be installed on the `server` machine: Kubernetes API Server, Scheduler, and Controller Manager.
+В этой лабораторной работе вы развернёте control plane Kubernetes. На машине `server` будут установлены следующие компоненты: Kubernetes API Server, Scheduler и Controller Manager.
 
-## Prerequisites
+## Предварительные требования
 
-Connect to the `jumpbox` and copy Kubernetes binaries and systemd unit files to the `server` machine:
+Подключитесь к `jumpbox` и скопируйте бинарные файлы Kubernetes, а также systemd unit-файлы на машину `server`:
 
 ```bash
 scp \
@@ -20,23 +20,23 @@ scp \
   root@server:~/
 ```
 
-The commands in this lab must be run on the `server` machine. Login to the `server` machine using the `ssh` command. Example:
+Команды этой лабораторной работы необходимо выполнять на машине `server`. Подключитесь к ней по SSH. Пример:
 
 ```bash
 ssh root@server
 ```
 
-## Provision the Kubernetes Control Plane
+## Подготовка control plane Kubernetes
 
-Create the Kubernetes configuration directory:
+Создайте каталог конфигурации Kubernetes:
 
 ```bash
 mkdir -p /etc/kubernetes/config
 ```
 
-### Install the Kubernetes Controller Binaries
+### Установка бинарных файлов компонентов управления Kubernetes
 
-Install the Kubernetes binaries:
+Установите бинарные файлы Kubernetes:
 
 ```bash
 {
@@ -47,7 +47,7 @@ Install the Kubernetes binaries:
 }
 ```
 
-### Configure the Kubernetes API Server
+### Настройка Kubernetes API Server
 
 ```bash
 {
@@ -61,48 +61,48 @@ Install the Kubernetes binaries:
 }
 ```
 
-Create the `kube-apiserver.service` systemd unit file:
+Создайте systemd unit-файл `kube-apiserver.service`:
 
 ```bash
 mv kube-apiserver.service \
   /etc/systemd/system/kube-apiserver.service
 ```
 
-### Configure the Kubernetes Controller Manager
+### Настройка Kubernetes Controller Manager
 
-Move the `kube-controller-manager` kubeconfig into place:
+Переместите kubeconfig `kube-controller-manager` в требуемое расположение:
 
 ```bash
 mv kube-controller-manager.kubeconfig /var/lib/kubernetes/
 ```
 
-Create the `kube-controller-manager.service` systemd unit file:
+Создайте systemd unit-файл `kube-controller-manager.service`:
 
 ```bash
 mv kube-controller-manager.service /etc/systemd/system/
 ```
 
-### Configure the Kubernetes Scheduler
+### Настройка Kubernetes Scheduler
 
-Move the `kube-scheduler` kubeconfig into place:
+Переместите kubeconfig `kube-scheduler` в требуемое расположение:
 
 ```bash
 mv kube-scheduler.kubeconfig /var/lib/kubernetes/
 ```
 
-Create the `kube-scheduler.yaml` configuration file:
+Создайте конфигурационный файл `kube-scheduler.yaml`:
 
 ```bash
 mv kube-scheduler.yaml /etc/kubernetes/config/
 ```
 
-Create the `kube-scheduler.service` systemd unit file:
+Создайте systemd unit-файл `kube-scheduler.service`:
 
 ```bash
 mv kube-scheduler.service /etc/systemd/system/
 ```
 
-### Start the Controller Services
+### Запуск сервисов control plane
 
 ```bash
 {
@@ -116,29 +116,29 @@ mv kube-scheduler.service /etc/systemd/system/
 }
 ```
 
-> Allow up to 10 seconds for the Kubernetes API Server to fully initialize.
+> Подождите до 10 секунд, пока Kubernetes API Server полностью инициализируется.
 
-You can check if any of the control plane components are active using the `systemctl` command. For example, to check if the `kube-apiserver` fully initialized, and active, run the following command:
+Проверить, активны ли компоненты control plane, можно с помощью команды `systemctl`. Например, чтобы проверить, что `kube-apiserver` полностью инициализирован и находится в активном состоянии, выполните:
 
 ```bash
 systemctl is-active kube-apiserver
 ```
 
-For a more detailed status check, which includes additional process information and log messages, use the `systemctl status` command:
+Для более подробной проверки состояния, включая дополнительную информацию о процессе и сообщения журналов, используйте команду `systemctl status`:
 
 ```bash
 systemctl status kube-apiserver
 ```
 
-If you run into any errors, or want to view the logs for any of the control plane components, use the `journalctl` command. For example, to view the logs for the `kube-apiserver` run the following command:
+Если возникли ошибки или необходимо просмотреть журналы любого компонента control plane, используйте команду `journalctl`. Например, для просмотра журналов `kube-apiserver` выполните:
 
 ```bash
 journalctl -u kube-apiserver
 ```
 
-### Verification
+### Проверка
 
-At this point the Kubernetes control plane components should be up and running. Verify this using the `kubectl` command line tool:
+На этом этапе компоненты control plane Kubernetes должны быть запущены. Проверьте это с помощью утилиты командной строки `kubectl`:
 
 ```bash
 kubectl cluster-info \
@@ -146,37 +146,37 @@ kubectl cluster-info \
 ```
 
 ```text
-Kubernetes control plane is running at https://127.0.0.1:6443
+Kubernetes control plane is running at [https://127.0.0.1:6443](https://127.0.0.1:6443)
 ```
 
-## RBAC for Kubelet Authorization
+## RBAC для авторизации Kubelet
 
-In this section you will configure RBAC permissions to allow the Kubernetes API Server to access the Kubelet API on each worker node. Access to the Kubelet API is required for retrieving metrics, logs, and executing commands in pods.
+В этом разделе вы настроите разрешения RBAC, позволяющие Kubernetes API Server обращаться к Kubelet API на каждом рабочем узле. Доступ к Kubelet API требуется для получения метрик и логов, а также выполнения команд в pod'ах.
 
-> This tutorial sets the Kubelet `--authorization-mode` flag to `Webhook`. Webhook mode uses the [SubjectAccessReview](https://kubernetes.io/docs/reference/access-authn-authz/authorization/#checking-api-access) API to determine authorization.
+> В этом руководстве для Kubelet устанавливается флаг `--authorization-mode` со значением `Webhook`. Режим Webhook использует API [SubjectAccessReview](https://kubernetes.io/docs/reference/access-authn-authz/authorization/#checking-api-access) для определения прав доступа.
 
-The commands in this section will affect the entire cluster and only need to be run on the `server` machine.
+Команды из этого раздела влияют на весь кластер, поэтому их необходимо выполнить на машине `server` только один раз.
 
 ```bash
 ssh root@server
 ```
 
-Create the `system:kube-apiserver-to-kubelet` [ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) with permissions to access the Kubelet API and perform most common tasks associated with managing pods:
+Создайте [ClusterRole](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#role-and-clusterrole) `system:kube-apiserver-to-kubelet` с разрешениями для доступа к Kubelet API и выполнения большинства распространённых задач по управлению pod'ами:
 
 ```bash
 kubectl apply -f kube-apiserver-to-kubelet.yaml \
   --kubeconfig admin.kubeconfig
 ```
 
-### Verification
+### Проверка
 
-At this point the Kubernetes control plane is up and running. Run the following commands from the `jumpbox` machine to verify it's working:
+На этом этапе control plane Kubernetes должен быть запущен. Выполните следующие команды на машине `jumpbox`, чтобы убедиться, что он работает.
 
-Make a HTTP request for the Kubernetes version info:
+Отправьте HTTP-запрос для получения информации о версии Kubernetes:
 
 ```bash
 curl --cacert ca.crt \
-  https://server.kubernetes.local:6443/version
+  [https://server.kubernetes.local:6443/version](https://server.kubernetes.local:6443/version)
 ```
 
 ```text
@@ -193,4 +193,4 @@ curl --cacert ca.crt \
 }
 ```
 
-Next: [Bootstrapping the Kubernetes Worker Nodes](09-bootstrapping-kubernetes-workers.md)
+Далее: [Развёртывание рабочих узлов Kubernetes](09-bootstrapping-kubernetes-workers.md)
