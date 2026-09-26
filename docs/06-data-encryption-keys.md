@@ -1,30 +1,30 @@
-# Generating the Data Encryption Config and Key
+# Создание конфигурации и ключа шифрования данных
 
-Kubernetes stores a variety of data including cluster state, application configurations, and secrets. Kubernetes supports the ability to [encrypt](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data) cluster data at rest.
+Kubernetes хранит различные данные, включая состояние кластера, конфигурации приложений и секреты. Kubernetes поддерживает возможность [шифрования](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data) данных кластера при хранении.
 
-In this lab you will generate an encryption key and an [encryption config](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#understanding-the-encryption-at-rest-configuration) suitable for encrypting Kubernetes Secrets.
+В этой лабораторной работе вы создадите ключ шифрования и [конфигурацию шифрования](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#understanding-the-encryption-at-rest-configuration), подходящую для шифрования Kubernetes Secrets.
 
-## The Encryption Key
+## Ключ шифрования
 
-Generate an encryption key:
+Создайте ключ шифрования:
 
 ```bash
 export ENCRYPTION_KEY=$(head -c 32 /dev/urandom | base64)
 ```
 
-## The Encryption Config File
+## Файл конфигурации шифрования
 
-Create the `encryption-config.yaml` encryption config file:
+Создайте файл конфигурации шифрования `encryption-config.yaml`:
 
 ```bash
 envsubst < configs/encryption-config.yaml \
   > encryption-config.yaml
 ```
 
-Copy the `encryption-config.yaml` encryption config file to each controller instance:
+Скопируйте файл конфигурации шифрования `encryption-config.yaml` на каждый экземпляр control plane:
 
 ```bash
 scp encryption-config.yaml root@server:~/
 ```
 
-Next: [Bootstrapping the etcd Cluster](07-bootstrapping-etcd.md)
+Далее: [Развёртывание кластера etcd](07-bootstrapping-etcd.md)
