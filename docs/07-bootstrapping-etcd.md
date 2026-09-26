@@ -1,10 +1,10 @@
-# Bootstrapping the etcd Cluster
+# Развёртывание кластера etcd
 
-Kubernetes components are stateless and store cluster state in [etcd](https://github.com/etcd-io/etcd). In this lab you will bootstrap a single node etcd cluster.
+Компоненты Kubernetes не хранят состояние локально и сохраняют состояние кластера в [etcd](https://github.com/etcd-io/etcd). В этой лабораторной работе вы развернёте одноузловой кластер etcd.
 
-## Prerequisites
+## Предварительные требования
 
-Copy `etcd` binaries and systemd unit files to the `server` machine:
+Скопируйте бинарные файлы `etcd` и systemd unit-файл на машину `server`:
 
 ```bash
 scp \
@@ -14,17 +14,17 @@ scp \
   root@server:~/
 ```
 
-The commands in this lab must be run on the `server` machine. Login to the `server` machine using the `ssh` command. Example:
+Команды из этой лабораторной работы необходимо выполнять на машине `server`. Подключитесь к ней по SSH. Пример:
 
 ```bash
 ssh root@server
 ```
 
-## Bootstrapping an etcd Cluster
+## Развёртывание кластера etcd
 
-### Install the etcd Binaries
+### Установка бинарных файлов etcd
 
-Extract and install the `etcd` server and the `etcdctl` command line utility:
+Переместите и установите сервер `etcd` и утилиту командной строки `etcdctl`:
 
 ```bash
 {
@@ -32,7 +32,7 @@ Extract and install the `etcd` server and the `etcdctl` command line utility:
 }
 ```
 
-### Configure the etcd Server
+### Настройка сервера etcd
 
 ```bash
 {
@@ -43,15 +43,15 @@ Extract and install the `etcd` server and the `etcdctl` command line utility:
 }
 ```
 
-Each etcd member must have a unique name within an etcd cluster. Set the etcd name to match the hostname of the current compute instance:
+Каждый участник etcd должен иметь уникальное имя внутри кластера etcd. Укажите для etcd имя, совпадающее с именем хоста текущего вычислительного экземпляра.
 
-Create the `etcd.service` systemd unit file:
+Создайте systemd unit-файл `etcd.service`:
 
 ```bash
 mv etcd.service /etc/systemd/system/
 ```
 
-### Start the etcd Server
+### Запуск сервера etcd
 
 ```bash
 {
@@ -61,9 +61,9 @@ mv etcd.service /etc/systemd/system/
 }
 ```
 
-## Verification
+## Проверка
 
-List the etcd cluster members:
+Выведите список участников кластера etcd:
 
 ```bash
 etcdctl member list
@@ -73,4 +73,4 @@ etcdctl member list
 6702b0a34e2cfd39, started, controller, http://127.0.0.1:2380, http://127.0.0.1:2379, false
 ```
 
-Next: [Bootstrapping the Kubernetes Control Plane](08-bootstrapping-kubernetes-controllers.md)
+Далее: [Развёртывание control plane Kubernetes](08-bootstrapping-kubernetes-controllers.md)
