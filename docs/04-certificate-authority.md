@@ -1,23 +1,22 @@
-# Provisioning a CA and Generating TLS Certificates
+# Подготовка CA и генерация TLS-сертификатов
 
-In this lab you will provision a [PKI Infrastructure](https://en.wikipedia.org/wiki/Public_key_infrastructure) using openssl to bootstrap a Certificate Authority, and generate TLS certificates for the following components: kube-apiserver, kube-controller-manager, kube-scheduler, kubelet, and kube-proxy. The commands in this section should be run from the `jumpbox`.
+В этой лабораторной работе вы подготовите [инфраструктуру PKI](https://en.wikipedia.org/wiki/Public_key_infrastructure) с помощью openssl, чтобы создать центр сертификации (Certificate Authority), и сгенерируете TLS-сертификаты для следующих компонентов: kube-apiserver, kube-controller-manager, kube-scheduler, kubelet и kube-proxy. Команды из этого раздела следует выполнять с машины `jumpbox`.
 
-## Certificate Authority
+## Центр сертификации
 
-In this section you will provision a Certificate Authority that can be used to generate additional TLS certificates for the other Kubernetes components. Setting up CA and generating certificates using `openssl` can be time-consuming, especially when doing it for the first time. To streamline this lab, I've included an openssl configuration file `ca.conf`, which defines all the details needed to generate certificates for each Kubernetes component.
+В этом разделе вы создадите центр сертификации, который можно будет использовать для генерации дополнительных TLS-сертификатов для остальных компонентов Kubernetes. Настройка CA и генерация сертификатов с помощью `openssl` может занимать много времени, особенно если делать это впервые. Чтобы упростить эту лабораторную работу, я включил конфигурационный файл openssl `ca.conf`, в котором определены все детали, необходимые для генерации сертификатов для каждого компонента Kubernetes.
 
-Take a moment to review the `ca.conf` configuration file:
+Уделите минуту, чтобы просмотреть конфигурационный файл `ca.conf`:
 
 ```bash
 cat ca.conf
 ```
 
-You don't need to understand everything in the `ca.conf` file to complete this tutorial, but you should consider it a starting point for learning `openssl` and the configuration that goes into managing certificates at a high level.
+Вам не нужно понимать всё в файле `ca.conf`, чтобы пройти этот учебник, но стоит рассматривать его как отправную точку для изучения `openssl` и конфигурации, которая в общем виде требуется для управления сертификатами.
 
-Every certificate authority starts with a private key and root certificate. In this section we are going to create a self-signed certificate authority, and while that's all we need for this tutorial, this shouldn't be considered something you would do in a real-world production environment.
+Любой центр сертификации начинается с закрытого ключа и корневого сертификата. В этом разделе мы создадим самоподписанный центр сертификации; хотя для этого учебника этого достаточно, не стоит считать такой подход применимым в реальной продакшен-среде.
 
-Generate the CA configuration file, certificate, and private key:
-
+Сгенерируйте конфигурационный файл CA, сертификат и закрытый ключ:
 ```bash
 {
   openssl genrsa -out ca.key 4096
@@ -28,17 +27,16 @@ Generate the CA configuration file, certificate, and private key:
 }
 ```
 
-Results:
-
+Результат:
 ```txt
 ca.crt ca.key
 ```
 
-## Create Client and Server Certificates
+## Создание клиентских и серверных сертификатов
 
-In this section you will generate client and server certificates for each Kubernetes component and a client certificate for the Kubernetes `admin` user.
+В этом разделе вы сгенерируете клиентские и серверные сертификаты для каждого компонента Kubernetes, а также клиентский сертификат для пользователя Kubernetes `admin`.
 
-Generate the certificates and private keys:
+Сгенерируйте сертификаты и закрытые ключи:
 
 ```bash
 certs=(
@@ -67,17 +65,17 @@ for i in ${certs[*]}; do
 done
 ```
 
-The results of running the above command will generate a private key, certificate request, and signed SSL certificate for each of the Kubernetes components. You can list the generated files with the following command:
+В результате выполнения приведённой выше команды будут сгенерированы закрытый ключ, запрос на сертификат и подписанный SSL-сертификат для каждого из компонентов Kubernetes. Вывести список сгенерированных файлов можно следующей командой:
 
 ```bash
 ls -1 *.crt *.key *.csr
 ```
 
-## Distribute the Client and Server Certificates
+## Распространение клиентских и серверных сертификатов
 
-In this section you will copy the various certificates to every machine at a path where each Kubernetes component will search for its certificate pair. In a real-world environment these certificates should be treated like a set of sensitive secrets as they are used as credentials by the Kubernetes components to authenticate to each other.
+В этом разделе вы скопируете различные сертификаты на каждую машину в путь, где каждый компонент Kubernetes будет искать свою пару сертификатов. В реальной среде эти сертификаты следует рассматривать как набор чувствительных секретов, поскольку они используются компонентами Kubernetes в качестве учётных данных для взаимной аутентификации.
 
-Copy the appropriate certificates and private keys to the `node-0` and `node-1` machines:
+Скопируйте соответствующие сертификаты и закрытые ключи на машины `node-0` и `node-1`:
 
 ```bash
 for host in node-0 node-1; do
@@ -93,7 +91,7 @@ for host in node-0 node-1; do
 done
 ```
 
-Copy the appropriate certificates and private keys to the `server` machine:
+Скопируйте соответствующие сертификаты и закрытые ключи на машину `server`:
 
 ```bash
 scp \
@@ -103,6 +101,6 @@ scp \
   root@server:~/
 ```
 
-> The `kube-proxy`, `kube-controller-manager`, `kube-scheduler`, and `kubelet` client certificates will be used to generate client authentication configuration files in the next lab.
+> Клиентские сертификаты `kube-proxy`, `kube-controller-manager`, `kube-scheduler` и `kubelet` будут использоваться для генерации конфигурационных файлов клиентской аутентификации в следующей лабораторной работе.
 
-Next: [Generating Kubernetes Configuration Files for Authentication](05-kubernetes-configuration-files.md)
+`Далее`: [Генерация конфигурационных файлов Kubernetes для аутентификации](05-kubernetes-configuration-files.md)
