@@ -1,16 +1,16 @@
-# Provisioning Pod Network Routes
+# Настройка маршрутов сети pod'ов
 
-Pods scheduled to a node receive an IP address from the node's Pod CIDR range. At this point pods can not communicate with other pods running on different nodes due to missing network [routes](https://cloud.google.com/compute/docs/vpc/routes).
+Pod'ы, назначенные на узел, получают IP-адрес из диапазона Pod CIDR этого узла. На данном этапе pod'ы не могут взаимодействовать с pod'ами, работающими на других узлах, из-за отсутствующих сетевых [маршрутов](https://cloud.google.com/compute/docs/vpc/routes).
 
-In this lab you will create a route for each worker node that maps the node's Pod CIDR range to the node's internal IP address.
+В этой лабораторной работе вы создадите маршрут для каждого рабочего узла, который сопоставляет диапазон Pod CIDR узла с его внутренним IP-адресом.
 
-> There are [other ways](https://kubernetes.io/docs/concepts/cluster-administration/networking/#how-to-achieve-this) to implement the Kubernetes networking model.
+> Существуют [другие способы](https://kubernetes.io/docs/concepts/cluster-administration/networking/#how-to-achieve-this) реализации сетевой модели Kubernetes.
 
-## The Routing Table
+## Таблица маршрутизации
 
-In this section you will gather the information required to create routes in the `kubernetes-the-hard-way` VPC network.
+В этом разделе вы получите сведения, необходимые для создания маршрутов в VPC-сети `kubernetes-the-hard-way`.
 
-Print the internal IP address and Pod CIDR range for each worker instance:
+Получите внутренний IP-адрес и диапазон Pod CIDR для каждого рабочего узла:
 
 ```bash
 {
@@ -22,6 +22,8 @@ Print the internal IP address and Pod CIDR range for each worker instance:
 }
 ```
 
+Добавьте маршруты на машине `server`:
+
 ```bash
 ssh root@server <<EOF
   ip route add ${NODE_0_SUBNET} via ${NODE_0_IP}
@@ -29,11 +31,15 @@ ssh root@server <<EOF
 EOF
 ```
 
+Добавьте маршрут к Pod CIDR узла `node-1` на машине `node-0`:
+
 ```bash
 ssh root@node-0 <<EOF
   ip route add ${NODE_1_SUBNET} via ${NODE_1_IP}
 EOF
 ```
+
+Добавьте маршрут к Pod CIDR узла `node-0` на машине `node-1`:
 
 ```bash
 ssh root@node-1 <<EOF
@@ -41,7 +47,9 @@ ssh root@node-1 <<EOF
 EOF
 ```
 
-## Verification 
+## Проверка
+
+Проверьте таблицу маршрутизации на машине `server`:
 
 ```bash
 ssh root@server ip route
@@ -54,6 +62,8 @@ default via XXX.XXX.XXX.XXX dev ens160
 XXX.XXX.XXX.0/24 dev ens160 proto kernel scope link src XXX.XXX.XXX.XXX 
 ```
 
+Проверьте таблицу маршрутизации на машине `node-0`:
+
 ```bash
 ssh root@node-0 ip route
 ```
@@ -63,6 +73,8 @@ default via XXX.XXX.XXX.XXX dev ens160
 10.200.1.0/24 via XXX.XXX.XXX.XXX dev ens160 
 XXX.XXX.XXX.0/24 dev ens160 proto kernel scope link src XXX.XXX.XXX.XXX 
 ```
+
+Проверьте таблицу маршрутизации на машине `node-1`:
 
 ```bash
 ssh root@node-1 ip route
@@ -74,5 +86,4 @@ default via XXX.XXX.XXX.XXX dev ens160
 XXX.XXX.XXX.0/24 dev ens160 proto kernel scope link src XXX.XXX.XXX.XXX 
 ```
 
-
-Next: [Smoke Test](12-smoke-test.md)
+Далее: [Финальная проверка](12-smoke-test.md)
