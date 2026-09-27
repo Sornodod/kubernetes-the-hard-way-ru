@@ -146,7 +146,7 @@ kubectl cluster-info \
 ```
 
 ```text
-Kubernetes control plane is running at [https://127.0.0.1:6443](https://127.0.0.1:6443)
+Kubernetes control plane is running at https://127.0.0.1:6443
 ```
 
 ## RBAC для авторизации Kubelet
