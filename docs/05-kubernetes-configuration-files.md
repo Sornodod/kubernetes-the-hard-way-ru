@@ -54,7 +54,7 @@ node-1.kubeconfig
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.crt \
     --embed-certs=true \
-    --server=[https://server.kubernetes.local:6443](https://server.kubernetes.local:6443) \
+    --server=https://server.kubernetes.local:6443 \
     --kubeconfig=kube-proxy.kubeconfig
 
   kubectl config set-credentials system:kube-proxy \
