@@ -122,7 +122,7 @@ kube-controller-manager.kubeconfig
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.crt \
     --embed-certs=true \
-    --server=[https://server.kubernetes.local:6443](https://server.kubernetes.local:6443) \
+    --server=https://server.kubernetes.local:6443 \
     --kubeconfig=kube-scheduler.kubeconfig
 
   kubectl config set-credentials system:kube-scheduler \
