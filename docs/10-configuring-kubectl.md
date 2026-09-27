@@ -12,7 +12,7 @@
 
 ```bash
 curl --cacert ca.crt \
-  [https://server.kubernetes.local:6443/version](https://server.kubernetes.local:6443/version)
+  https://server.kubernetes.local:6443/version
 ```
 
 ```text
@@ -36,7 +36,7 @@ curl --cacert ca.crt \
   kubectl config set-cluster kubernetes-the-hard-way \
     --certificate-authority=ca.crt \
     --embed-certs=true \
-    --server=[https://server.kubernetes.local:6443](https://server.kubernetes.local:6443)
+    --server=https://server.kubernetes.local:6443
 
   kubectl config set-credentials admin \
     --client-certificate=admin.crt \
