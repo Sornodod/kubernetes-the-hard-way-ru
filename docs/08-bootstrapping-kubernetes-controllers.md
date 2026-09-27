@@ -176,7 +176,7 @@ kubectl apply -f kube-apiserver-to-kubelet.yaml \
 
 ```bash
 curl --cacert ca.crt \
-  [https://server.kubernetes.local:6443/version](https://server.kubernetes.local:6443/version)
+  https://server.kubernetes.local:6443/version
 ```
 
 ```text
